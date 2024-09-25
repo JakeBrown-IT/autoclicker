@@ -7,10 +7,14 @@
 import pyautogui
 import keyboard
 import time
+import threading
 
-# set click interval to 0.1 second (10 clicks per second)
-interval = 0.1
-pyautogui.PAUSE = interval 
+# global variables
+pyautogui.PAUSE = 0.1   # click interval
+clicking = False        # clicking state
+running = True          # running state 
+
+### autoclick ###
 
 def autoclick(x, y):
     clicks = 0
@@ -29,15 +33,31 @@ def autoclick(x, y):
 
     return
 
+# we want to run autoclicker in a separate thread to the main program
+# so we still have use of the mouse while it is clicking to perform other
+# actions in the same window
+
+### spawn thread ###
+
+def spawn_thread():
+    x, y = pyautogui.position()
+    clicker = threading.Thread(target=autoclick(x, y))
+    clicker.daemon = True
+    clicker.start()
+
+### main ###
+
 def main():
-    while True:
-        if keyboard.is_pressed('l'):
-            x, y = pyautogui.position()
-            autoclick(x, y)
-            break
+    print("Move mouse to click location, then press enter...")
+    
+    keyboard.wait('enter')
+    spawn_thread()
 
-    return
-
+    try:
+        while True:
+            pass
+    except KeyboardInterrupt:
+        return
 
 if __name__ == "__main__":
     main()
