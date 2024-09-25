@@ -24,8 +24,8 @@ def autoclick(x, y):
     end = time.time()
     duration = end - start
 
-    print(f"{clicks} clicks in {duration} seconds."
-          .format(duration, clicks))
+    print(f"{clicks} clicks in {duration:.3f} seconds."
+          .format(clicks, duration))
 
     return
 
