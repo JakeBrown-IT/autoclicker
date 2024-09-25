@@ -20,6 +20,7 @@ class AutoClicker:
         clicking (bool): The state of the autoclicker actively clicking.
         running (bool): The state of the autoclicker running.
         click_thread (Thread): The thread for the autoclicker.
+        uptime (float): The time the AutoClicker has been running.
     """
     def __init__(self):
         """ Initialises the AutoClicker instance. """
@@ -28,6 +29,8 @@ class AutoClicker:
         self.clicking = False
         self.running = True
         self.click_thread = None    # Set thread to None while not configured.
+        self.uptime = 0.0
+        self.clicks = 0
 
         keyboard.add_hotkey('ctrl+shift+f', self.toggle_clicking)
         #keyboard.add_hotkey('ctrl+shift+p', self.set_click_position)
@@ -37,6 +40,7 @@ class AutoClicker:
         while self.running:
             if self.clicking:
                 pyautogui.click(self.click_position)
+                self.clicks += 1
             else:
                 # Sleep if not clicking to prevent high CPU usage
                 time.sleep(0.1)
@@ -65,13 +69,15 @@ class AutoClicker:
         print(f"Click position set to: {self.click_position}")
 
     def kill(self):
-        """ Kill the AutoClicker thread. """        
+        """ Kill the AutoClicker thread and print statistics. """        
         self.running = False
 
         if self.click_thread is not None:
             self.click_thread.join()
         
         print("AutoClicker killed.")
+        print(f"Uptime: {self.uptime:.3f}s")
+        print(f"Clicks: {self.clicks}")
 
     def run(self):
         """ Run the autoclicker until killed. """
@@ -79,10 +85,13 @@ class AutoClicker:
         #print("Press '<C-P>' to set the click position.")
         print("Press '<C-c>' to exit.")
         
+        self.uptime = time.time()
+
         try:
             keyboard.wait()
 
         except KeyboardInterrupt:
+            self.uptime = time.time() - self.uptime
             self.kill()
             exit()
             
